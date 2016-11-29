@@ -1,0 +1,38 @@
+name: type-assertions
+version: 0.1.0.0
+category: Testing
+synopsis: Runtime type assertions for testing
+description: |
+  This package provides a way to make runtime assertions about types that
+  cooperate with the typechecker, intended for use in testing. For more
+  information, see the module documentation for "Test.TypeAssertions".
+maintainer: Alexis King
+license: ISC
+github: lexi-lambda/type-assertions
+
+extra-source-files:
+- LICENSE
+- package.yaml
+- README.md
+- stack.yaml
+
+ghc-options: -Wall
+
+library:
+  dependencies:
+  - base >= 4.9.0.0 && < 5
+  source-dirs: library
+
+tests:
+  type-assertions-test-suite:
+    dependencies:
+    - base
+    - hspec
+    - test-fixture
+    - type-assertions
+    ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    main: Main.hs
+    source-dirs: test-suite
