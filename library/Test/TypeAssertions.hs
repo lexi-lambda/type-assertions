@@ -48,6 +48,7 @@ module Test.TypeAssertions
   , withAssertHasT
   , assertEqT
   , withAssertEqT
+  , withAssertResultT
   , (:~:)(..)
   ) where
 
@@ -86,7 +87,7 @@ assertHasT x = withFrozenCallStack $ fromMaybe (error errorMessage) eqT
 -- CallStack (from HasCallStack):
 --   withAssertHasT, called at <interactive>:17:13 in interactive:Ghci1
 withAssertHasT :: forall b a c. (HasCallStack, Show a, Typeable a, Typeable b) => a -> ((a ~ b) => c) -> c
-withAssertHasT x = withFrozenCallStack $ gcastWith (assertHasT x :: (a :~: b))
+withAssertHasT x = withFrozenCallStack $ gcastWith (assertHasT x :: a :~: b)
 
 -- | Like 'assertHasT', but asserts that two types are the same instead of
 -- asserting that a value has a type. Generally, prefer 'assertHasT' when
@@ -110,11 +111,26 @@ assertEqT = withFrozenCallStack $ fromMaybe (error errorMessage) eqT
 -- the type does not have a runtime representation (such as if it is phantom).
 --
 -- > foo :: forall a proxy. (Show a, Typeable a) => proxy a -> a
--- > foo _ = withAssertEqT @Bool @a True
+-- > foo _ = withAssertEqT @a @Bool True
 --
 -- >>> foo (Proxy @Bool)
 -- True
 -- >>> foo (Proxy @Int)
--- *** Exception: expected type ‘Int’, but got type ‘Bool’
+-- *** Exception: expected type ‘Bool’, but got type ‘Int’
 withAssertEqT :: forall a b c. (HasCallStack, Typeable a, Typeable b) => ((a ~ b) => c) -> c
-withAssertEqT = withFrozenCallStack $ gcastWith (assertEqT :: (a :~: b))
+withAssertEqT x = withFrozenCallStack $ gcastWith (assertEqT :: a :~: b) x
+
+-- | Like 'withAssertEqT' but asserts the result type of the overall expression
+-- rather than some arbitrary type. This is useful when implementing a function
+-- polymorphic in the return type where the result type does not depend on the
+-- type of an argument.
+--
+-- > foo :: Typeable a => String -> a
+-- > foo _ = withAssertResultT @Bool True
+--
+-- >>> foo "hello" :: Bool
+-- True
+-- >>> foo "hello" :: Int
+-- *** Exception: expected type ‘Bool’, but got type ‘Int’
+withAssertResultT :: forall a b. (HasCallStack, Typeable a, Typeable b) => a -> b
+withAssertResultT x = withFrozenCallStack $ gcastWith (assertEqT :: b :~: a) x
