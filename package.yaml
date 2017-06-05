@@ -1,5 +1,5 @@
 name: type-assertions
-version: 0.1.0.0
+version: 0.1.1.0
 category: Testing
 synopsis: Runtime type assertions for testing
 description: |
@@ -11,6 +11,7 @@ license: ISC
 github: lexi-lambda/type-assertions
 
 extra-source-files:
+- CHANGELOG.md
 - LICENSE
 - package.yaml
 - README.md
